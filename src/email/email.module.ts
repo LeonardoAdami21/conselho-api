@@ -3,6 +3,8 @@ import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { envoriment } from '../env/envoriment';
+import { PrismaClient } from '@prisma/client';
+import { EmailRepository } from './repositories/email.repository';
 
 @Module({
   imports: [
@@ -22,6 +24,16 @@ import { envoriment } from '../env/envoriment';
     }),
   ],
   controllers: [EmailController],
-  providers: [EmailService],
+  providers: [
+    EmailService,
+    {
+      provide: 'db__client',
+      useClass: PrismaClient,
+    },
+    {
+      provide: 'email__repository',
+      useClass: EmailRepository,
+    },
+  ],
 })
 export class EmailModule {}
