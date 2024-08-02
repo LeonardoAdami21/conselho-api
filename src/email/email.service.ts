@@ -1,21 +1,27 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CreateEmailDto } from './dto/create.email.dto';
+import { EmailRepository } from './repositories/email.repository';
+import { EmailRepositoryInterface } from './repositories/email.repository.interface';
 
 @Injectable()
 export class EmailService {
-  constructor(private readonly mailService: MailerService) {}
+  constructor(
+    @Inject('email__repository')
+    private emailRepository: EmailRepositoryInterface,
+    private readonly mailService: MailerService,
+  ) {}
 
-  async sendEmail(email: string) {
+  async create(dto: CreateEmailDto) {
     const mail = {
-      to: email,
+      to: dto.email,
       from: 'modules@nestjs.com',
       text: 'Testing',
       subject: 'Testing Nest MailerModule ✔',
       html: '<b>Welcome</b>',
     };
-    await this.mailService
-      .sendMail(mail)
-      .then(() => {})
-      .catch(() => {});
+    await this.mailService.sendMail(mail);
+    const result = await this.emailRepository.create(dto);
+    return result;
   }
 }

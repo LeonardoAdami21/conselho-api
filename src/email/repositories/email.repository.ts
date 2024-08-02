@@ -1,19 +1,21 @@
-import { PrismaClient } from '@prisma/client';
+import { Email, PrismaClient } from '@prisma/client';
 import { EmailRepositoryInterface } from './email.repository.interface';
+import { Inject, Injectable } from '@nestjs/common';
+import { CreateEmailDto } from '../dto/create.email.dto';
 
+@Injectable()
 export class EmailRepository implements EmailRepositoryInterface {
-  constructor(private readonly emailRepository: PrismaClient) {}
+  constructor(@Inject('db__client') private readonly dbClient: PrismaClient) {}
 
-  async create(email: string): Promise<any> {
-    return await this.emailRepository.email.create({
-      data: {
-        email: email,
-      },
+  private readonly emailRepository = this.dbClient.email;
+  async create(dto: CreateEmailDto): Promise<Email> {
+    return await this.emailRepository.create({
+      data: dto
     });
   }
 
-  async findEmail(email: string): Promise<any> {
-    return await this.emailRepository.email.findUnique({
+  async findByEmail(email: string): Promise<Email> {
+    return await this.emailRepository.findFirst({
       where: {
         email: email,
       },
